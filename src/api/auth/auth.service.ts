@@ -2,6 +2,7 @@ import {
     ConflictException, 
     Injectable, 
     InternalServerErrorException, 
+    NotFoundException, 
     UnauthorizedException 
 } from '@nestjs/common';
 import { User } from '../../db/entity/user.entity';
@@ -10,12 +11,17 @@ import { Repository } from 'typeorm';
 import { AuthCredentialsDto } from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Auth } from 'src/db/entity/auth.entity';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
+
+        @InjectRepository(Auth)
+        private authRepository: Repository<Auth>,
+
         private jwtService: JwtService,
     ) {}
 
@@ -68,6 +74,27 @@ export class AuthService {
                 throw new UnauthorizedException('Invalid credentials'); // 적절한 예외 반환
             }
             throw new InternalServerErrorException('SignIn failed'); // 내부 서버 에러로 변환
+        }
+    }
+
+    async saveUserStudentCard(uuid:string) {
+        try{
+            return await this.authRepository.save({uuid});
+        }catch(err){
+            throw new InternalServerErrorException(); // 내부 서버 에러로 변환
+        }
+    }
+
+    async getUserVerification(uuid:string){
+        try{
+            const userVerification = await this.authRepository.findOne({where:{uuid}});
+            if(!userVerification){
+                return {"data":0};
+            }
+            console.log(userVerification.verified)
+            return userVerification.verified;
+        }catch(err){
+            throw new InternalServerErrorException(); // 내부 서버 에러로 변환
         }
     }
 }

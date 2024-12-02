@@ -8,6 +8,8 @@ export class SuccessResponseDTO {
         this.statusCode = 200;
         if(result){
             this.result = result
+        }else if(result == 0){
+            this.result = 0;
         };
     } 
 }
