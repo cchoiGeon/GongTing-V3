@@ -49,4 +49,12 @@ export class UserService {
         }
         await this.userRepository.update({ uuid }, createUserProfileDto);
     }
+
+    async getUserProfileStatus( uuid: string ){
+        const user = await this.userRepository.findOne({where:{uuid}});
+        if(!user.nickname){
+            return 0;
+        }
+        return 1;
+    }
 }

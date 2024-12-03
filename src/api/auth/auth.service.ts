@@ -89,9 +89,8 @@ export class AuthService {
         try{
             const userVerification = await this.authRepository.findOne({where:{uuid}});
             if(!userVerification){
-                return {"data":0};
+                return 0;
             }
-            console.log(userVerification.verified)
             return userVerification.verified;
         }catch(err){
             throw new InternalServerErrorException(); // 내부 서버 에러로 변환

@@ -26,4 +26,10 @@ export class FriendMatchingController {
         return new SuccessResponseDTO(await this.friendMatchingService.getFriendMatching(req.user));
     }
 
+    @Get('/status')
+    async getFriendMatchingStatus(
+        @Req() req,
+    ){
+        return new SuccessResponseDTO(await this.friendMatchingService.getFriendMatchingStatus(req.user));  
+    }
 }

@@ -10,11 +10,18 @@ export class UserController {
     constructor(private userService:UserService){}
 
     @Post('/profile')
-    async userProfileSetting(
+    async createUserProfile(
         @Body() createUserProfileDto:CreateUserProfileDto,
         @Req() req,
     ){  
         await this.userService.createUserProfile(createUserProfileDto,req.user);
         return new SuccessResponseDTO;
+    }
+
+    @Get('/profile/status')
+    async getUserProfileStatus(
+        @Req() req,
+    ){
+        return new SuccessResponseDTO(this.userService.getUserProfileStatus(req.user));
     }
 }
