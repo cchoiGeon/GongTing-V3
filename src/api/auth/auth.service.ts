@@ -1,8 +1,7 @@
 import { 
     ConflictException, 
     Injectable, 
-    InternalServerErrorException, 
-    NotFoundException, 
+    InternalServerErrorException,
     UnauthorizedException 
 } from '@nestjs/common';
 import { User } from '../../db/entity/user.entity';
@@ -12,12 +11,12 @@ import { AuthCredentialsDto } from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Auth } from 'src/db/entity/auth.entity';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectRepository(User)
-        private userRepository: Repository<User>,
+        private userService: UserService,
 
         @InjectRepository(Auth)
         private authRepository: Repository<Auth>,
@@ -29,16 +28,16 @@ export class AuthService {
         const { userId, password } = authCredentialsDto;
 
         try {
-            const existUser = await this.userRepository.findOne({ where: { userId } });
+            const existUser = await this.userService.findUserByUserId(userId);
             if (existUser) {
                 throw new ConflictException();
             }
 
             const hashPassword = await bcrypt.hash(password, 10);
 
-            const user = this.userRepository.create({ userId, password: hashPassword });
+            const user = await this.userService.createUser(userId,hashPassword);
 
-            return await this.userRepository.save(user);
+            return await this.userService.saveUser(user);
         } catch (error) {
             console.error('Error during signup:', error); // 에러 로그 출력
             if(error.status == 409) {
@@ -52,7 +51,7 @@ export class AuthService {
         const { userId, password } = authCredentialsDto;
 
         try {
-            const user = await this.userRepository.findOne({ where: { userId } });
+            const user = await this.userService.findUserByUserId(userId);
 
             if (!user) {
                 throw new UnauthorizedException(); // 적절한 예외 반환
